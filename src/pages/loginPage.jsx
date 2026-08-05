@@ -12,13 +12,15 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { loginFailure, loginRequest, loginSuccess } from '../features/auth/authSlice';
+import { loginRequest } from '../features/auth/authSlice';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toast = useToast();
   const authError = useSelector((state) => state.auth.error);
+  const authUser = useSelector((state) => state.auth.user);
+  const authMessage = useSelector((state) => state.auth.message);
 
   const [credentials, setCredentials] = useState({ username: '', password: '' });
 
@@ -29,31 +31,33 @@ const LoginPage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    dispatch(loginRequest());
+    dispatch(loginRequest({ userName: credentials.username, password: credentials.password }));
+  };
 
-    const { username, password } = credentials;
-    if (username === 'nilesh' && password === 'nilesh') {
-      dispatch(loginSuccess({ username }));
+  React.useEffect(() => {
+    if (authUser) {
       toast({
-        title: 'Login successful',
-        description: 'Welcome back! Redirecting to student registration.',
+        title: authMessage || 'Login successful',
+        description: authMessage || 'Redirecting to student registration.',
         status: 'success',
         duration: 4000,
         isClosable: true,
       });
       navigate('/students');
-      return;
     }
+  }, [authUser, authMessage, navigate, toast]);
 
-    dispatch(loginFailure('Invalid username or password'));
-    toast({
-      title: 'Login failed',
-      description: 'Please check your username and password.',
-      status: 'error',
-      duration: 4000,
-      isClosable: true,
-    });
-  };
+  React.useEffect(() => {
+    if (authError) {
+      toast({
+        title: 'Login failed',
+        description: authError,
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+  }, [authError, toast]);
 
   return (
     <Box maxW="md" mx="auto" mt={16} p={8} borderWidth="1px" borderRadius="xl" boxShadow="lg" bg="white">

@@ -19,6 +19,7 @@ const initialState = storedAuth || {
   isAuthenticated: false,
   user: null,
   error: null,
+  message: null,
 };
 
 const authSlice = createSlice({
@@ -27,18 +28,24 @@ const authSlice = createSlice({
   reducers: {
     loginRequest: (state) => {
       state.error = null;
+      state.message = null;
     },
     loginSuccess: (state, action) => {
       state.isAuthenticated = true;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.message = action.payload.message || 'Login successful';
       state.error = null;
-      window.localStorage.setItem('auth', JSON.stringify({ isAuthenticated: true, user: action.payload }));
+      window.localStorage.setItem(
+        'auth',
+        JSON.stringify({ isAuthenticated: true, user: action.payload.user, message: state.message })
+      );
       window.localStorage.setItem('isAuthenticated', 'true');
     },
     loginFailure: (state, action) => {
       state.isAuthenticated = false;
       state.user = null;
       state.error = action.payload;
+      state.message = null;
       window.localStorage.removeItem('auth');
       window.localStorage.setItem('isAuthenticated', 'false');
     },
@@ -46,6 +53,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       state.error = null;
+      state.message = null;
       window.localStorage.removeItem('auth');
       window.localStorage.setItem('isAuthenticated', 'false');
     },

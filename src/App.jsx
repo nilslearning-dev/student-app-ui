@@ -4,7 +4,7 @@ import RegistrationPage from './pages/registrationPage';
 function App() {
   return (
     <div>
-      <RegistrationPage />s
+      <RegistrationPage />
     </div>
   );
 }

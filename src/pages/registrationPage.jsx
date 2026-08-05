@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -19,9 +20,9 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  ModalFooter,
   Spinner,
   Flex,
+  useToast,
 } from '@chakra-ui/react';
 import {
   getStudentsFetch,
@@ -29,12 +30,15 @@ import {
   updateStudentFetch,
   deleteStudentFetch,
 } from '../features/students/studentSlice';
+import { logout } from '../features/auth/authSlice';
 import RegistrationForm from '../features/students/components/registrationForm';
 import StudentList from '../features/students/components/studentList';
 
 const RegistrationPage = () => {
   const dispatch = useDispatch();
-  const { students, loading, error } = useSelector((state) => state.students);
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { students, loading, error, message } = useSelector((state) => state.students);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const { isOpen: isFormOpen, onOpen: openForm, onClose: closeForm } = useDisclosure();
@@ -44,6 +48,30 @@ const RegistrationPage = () => {
   useEffect(() => {
     dispatch(getStudentsFetch());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (message) {
+      toast({
+        title: 'Success',
+        description: message,
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+  }, [message, toast]);
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Error',
+        description: error,
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+    }
+  }, [error, toast]);
 
   const handleAddClick = () => {
     setSelectedStudent(null);
@@ -83,13 +111,30 @@ const RegistrationPage = () => {
     closeForm();
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
+    toast({
+      title: 'Logged out',
+      description: 'You have been returned to the login page.',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   return (
     <Box p={6}>
       <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" mb={6} gap={4}>
         <Heading size="lg">Student Registration Management</Heading>
-        <Button colorScheme="blue" onClick={handleAddClick} alignSelf={{ base: 'stretch', md: 'auto' }}>
-          Add Student
-        </Button>
+        <Stack direction={{ base: 'column', md: 'row' }} spacing={3} align="center">
+          <Button colorScheme="blue" onClick={handleAddClick} alignSelf={{ base: 'stretch', md: 'auto' }}>
+            Add Student
+          </Button>
+          <Button variant="outline" colorScheme="red" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Stack>
       </Stack>
 
       {error && (

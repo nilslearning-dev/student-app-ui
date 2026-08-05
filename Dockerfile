@@ -1,9 +1,15 @@
 # Stage 1: Build the React static files
 FROM node:20-alpine AS builder
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+
+# Install ALL dependencies (including devDependencies like Vite)
+RUN npm ci
+
 COPY . .
+
+# Now vite will be available to run the build
 RUN npm run build
 
 # Stage 2: Serve static files using Nginx

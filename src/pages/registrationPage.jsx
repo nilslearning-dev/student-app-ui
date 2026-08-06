@@ -74,6 +74,7 @@ const RegistrationPage = () => {
   }, [error, toast]);
 
   const handleAddClick = () => {
+    console.log('Add Student button clicked');
     setSelectedStudent(null);
     openForm();
   };
